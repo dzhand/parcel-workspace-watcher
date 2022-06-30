@@ -17,7 +17,7 @@ https://github.com/parcel-bundler/parcel/issues/4332#issuecomment-978974399
 #### 2.Modify package.json
     {
         ...
-        "script": {
+        "scripts": {
             "start": "npx --yes concurrently \"npx @dzhand/parcel-workspace-watcher --yes @dzhand/parcel-workspace-watcher\" \"npx --yes parcel ...\" ",
             ...
         },
