@@ -23,7 +23,7 @@ https://github.com/parcel-bundler/parcel/issues/4332#issuecomment-978974399
         },
         ...
         "private": true,
-        "workspace": {
+        "workspaces": {
             "packages": ["project A","project B"],
             "nohoist": ["**"]
         }
