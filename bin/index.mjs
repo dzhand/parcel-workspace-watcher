@@ -15,7 +15,9 @@ if(packageObj.workspaces){
         watchList=[...packageObj.workspaces.packages]
     }
 }
-const watcher=chokidar.watch(watchList,{})
+const watcher=chokidar.watch(watchList,{
+    ignored:path=>path.includes('node_modules')||path.includes('.git/')
+})
 console.log('watcher started',JSON.stringify(watchList))
 
 watcher.on('change',path=>{
