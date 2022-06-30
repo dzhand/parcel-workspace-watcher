@@ -8,7 +8,7 @@ import url from 'url'
 const packagePath=path.join(process.cwd(),'./package.json');
 const packageObj=JSON.parse(fs.readFileSync(packagePath,'utf-8'))
 
-const watcher=chokidar.watch(packageObj.workspaces||[],{})
+const watcher=chokidar.watch(packageObj.workspaces||packageObj.workspaces.packages||[],{})
 
 console.log('watcher started')
 
