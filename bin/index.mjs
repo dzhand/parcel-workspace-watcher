@@ -7,8 +7,6 @@ import url from 'url'
 const packagePath=path.join(process.cwd(),'./package.json');
 const packageObj=JSON.parse(fs.readFileSync(packagePath,'utf-8'))
 
-console.log(packageObj.workspaces)
-
 let watchList=[]
 if(packageObj.workspaces){
     if(packageObj.workspaces.length){
