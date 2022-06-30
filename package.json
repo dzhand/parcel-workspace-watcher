@@ -1,0 +1,11 @@
+{
+  "name": "@dzhand/parcel-workspace-watcher",
+  "version": "1.0.0",
+  "description": "",
+  "bin":{
+    "parcel-workspace-watcher":"./bin/index.mjs"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.3"
+  }
+}

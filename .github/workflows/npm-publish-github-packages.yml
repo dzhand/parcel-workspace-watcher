@@ -1,0 +1,37 @@
+name: Release
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: dev-drprasad/delete-older-releases@v0.2.0
+        with:
+          keep_latest: 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run:  echo "PACKAGE_NAME=${GITHUB_REPOSITORY##*\/}" >> $GITHUB_ENV
+      - uses: actions/delete-package-versions@v3
+        with: 
+          package-name: ${{ env.PACKAGE_NAME }}
+          min-versions-to-keep: 0
+      - name: Automatic GitHub Release
+        uses: justincy/github-action-npm-release@2.0.1
+        id: release
+      - uses: actions/setup-node@v1
+        if: steps.release.outputs.released == 'true'
+        with:
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Publish
+        if: steps.release.outputs.released == 'true'
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
