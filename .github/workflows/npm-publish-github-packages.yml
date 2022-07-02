@@ -5,33 +5,50 @@ on:
       - master
 
 jobs:
-  release:
-    name: Release
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - uses: dev-drprasad/delete-older-releases@v0.2.0
-        with:
-          keep_latest: 0
+          
+      - name: Delete all releases
+        run: gh release list | sed 's/|/ /' | awk '{print $1, $8}' | while read -r line; do gh release delete -y "$line"; done
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run:  echo "PACKAGE_NAME=${GITHUB_REPOSITORY##*\/}" >> $GITHUB_ENV
-      - uses: actions/delete-package-versions@v3
+           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Delete all tags
+        run: |
+          if [ $(git tag -l "$1") ]; then
+              git tag --delete  $1
+              git push --delete origin $1
+          else
+              echo tag named "$1" was not found
+          fi
+      
+      - name: Get package name
+        run:  echo "PACKAGE_NAME=${GITHUB_REPOSITORY##*\/}" >> $GITHUB_ENV
+        
+      - name: Delete all packages
+        uses: actions/delete-package-versions@v3
         with: 
           package-name: ${{ env.PACKAGE_NAME }}
           min-versions-to-keep: 0
-      - name: Automatic GitHub Release
-        uses: justincy/github-action-npm-release@2.0.1
-        id: release
-      - uses: actions/setup-node@v1
-        if: steps.release.outputs.released == 'true'
+          
+      - name: Get scope
+        run:  echo "SCOPE=@${GITHUB_ACTOR}" >> $GITHUB_ENV
+        
+      - name: Setup Node
+        uses: actions/setup-node@v1
         with:
-          registry-url: 'https://npm.pkg.github.com'
-      - name: Publish
-        if: steps.release.outputs.released == 'true'
-        run: npm publish
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+          scope: ${{ env.SCOPE }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          
+      - name: Publish package
+        run:
+          npm publish --registry https://npm.pkg.github.com/
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
